@@ -8,16 +8,16 @@ function runTestExtensionTests() {
   test("should have access to VSCODE_PROXY_URI", async ({ codeServerPage }) => {
     const address = await getMaybeProxiedCodeServer(codeServerPage)
 
+    await codeServerPage.waitForTestExtensionLoaded()
     await codeServerPage.executeCommandViaMenus("code-server: Get proxy URI")
 
-    const text = await codeServerPage.page.locator(".notification-list-item-message").textContent()
-    // Remove end slash in address
+    // Remove end slash in address.
     const normalizedAddress = address.replace(/\/+$/, "")
-    expect(text).toBe(`${normalizedAddress}/proxy/{{port}}`)
+    await codeServerPage.page.getByText(`Info: proxyUri: ${normalizedAddress}/proxy/{{port}}/`)
   })
 }
 
-const flags = ["--extensions-dir", path.join(__dirname, "./extensions")]
+const flags = ["--disable-workspace-trust", "--extensions-dir", path.join(__dirname, "./extensions")]
 
 describe("Extensions", flags, {}, () => {
   runTestExtensionTests()
